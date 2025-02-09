@@ -1,20 +1,33 @@
 pipeline {
     agent any 
+
+    environment {
+        DOCKER_IMAGE = 'nttue/submodule-fe:v1'
+    }
+
     stages {
         stage('Clone') {
             steps {
-                git branch: 'main',
-                url: 'https://github.com/NguyenTrongTue/submodule-fe.git'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/NguyenTrongTue/submodule-fe.git',
+                        credentialsId: 'github-cred'
+                    ]]
+                ])
             }
         }
-        stage('Clone stage') {
+
+        stage('Build & Push Docker Image') {
             steps {
-                withDockerRegistry(credentialsId: 'submodule-fe', url: 'https://index.docker.io/v1/') {
-                    sh 'docker build -t nttue/submodule-fe:v1 .'
-                    sh 'docker push nttue/submodule-fe:v1'
+                script {
+                    withDockerRegistry(credentialsId: 'docker-hub-cred', url: 'https://index.docker.io/v1/') {
+                        sh "docker build -t $DOCKER_IMAGE ."
+                        sh "docker push $DOCKER_IMAGE"
+                    }
                 }
             }
         }
-        
     }
 }
