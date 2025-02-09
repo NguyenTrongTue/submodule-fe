@@ -22,7 +22,7 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    withDockerRegistry(credentialsId: 'docker-hub-cred', url: 'https://index.docker.io/v1/') {
+                    withDockerRegistry(credentialsId: 'submodule-fe', url: 'https://index.docker.io/v1/') {
                         sh "docker build -t $DOCKER_IMAGE ."
                         sh "docker push $DOCKER_IMAGE"
                     }
